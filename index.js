@@ -28,6 +28,7 @@ class MusicPlayer {
     this.bindEvents();
     this.updateTrackInfo();
     this.startProgressSimulation();
+    this.updatePlaylist();
   }
 
   addSong(track) {
@@ -41,6 +42,7 @@ class MusicPlayer {
         currentNode = currentNode.next;
       }
       currentNode.next = newSong;
+      newSong.prev = currentNode;
     }
   }
   toNode() {
@@ -62,6 +64,7 @@ class MusicPlayer {
     this.trackArtist = document.getElementById("trackArtist");
     this.volumeSlider = document.getElementById("volumeSlider");
     this.equalizer = document.getElementById("equalizer");
+    this.playlist = document.querySelector(".playlist");
     this.playlistItems = document.querySelectorAll(".playlist-item");
   }
 
@@ -98,19 +101,29 @@ class MusicPlayer {
     }
   }
 
+  getNodeAtIndex(index) {
+    let currentNode = this.head,
+      currentIndex = 0;
+    while (currentIndex < index && currentNode.next) {
+      currentNode = currentNode.next;
+      currentIndex++;
+    }
+    return currentNode;
+  }
+
   previousTrack() {
     if (this.currentTrack && this.currentTrack.prev)
       this.currentTrack = this.currentTrack.prev;
 
     this.updateTrackInfo();
-    this.updatePlaylist()
+    this.updatePlaylist();
   }
   nextTrack() {
     if (this.currentTrack && this.currentTrack.next)
       this.currentTrack = this.currentTrack.next;
 
     this.updateTrackInfo();
-    this.updatePlaylist()
+    this.updatePlaylist();
   }
 
   setProgress(e) {
@@ -140,9 +153,50 @@ class MusicPlayer {
   }
 
   updatePlaylist() {
-    this.playlistItems.forEach((item, index) => {
-      item.classList.toggle("active", index === this.currentTrack);
-    });
+    this.playlist.innerHTML = "";
+
+    let index = 0,
+      currentNode = this.head;
+    while (currentNode) {
+      const item = document.createElement("div");
+      item.classList.add("playlist-item");
+      if (currentNode === this.currentTrack) item.classList.add("active");
+      item.dataset.track = index;
+
+      const trackNumber = document.createElement("div");
+      trackNumber.className = "track-number";
+      trackNumber.textContent = (index + 1).toString();
+
+      const trackDetails = document.createElement("div");
+      trackDetails.className = "track-details";
+
+      const trackName = document.createElement("div");
+      trackName.className = "track-name";
+      trackName.textContent = currentNode.title;
+
+      const trackDuration = document.createElement("div");
+      trackDuration.className = "track-duration";
+      trackDuration.textContent = this.formatTime(currentNode.duration);
+
+      trackDetails.appendChild(trackName);
+      trackDetails.appendChild(trackDuration);
+
+      item.appendChild(trackNumber);
+      item.appendChild(trackDetails);
+
+      const trackNode = currentNode;
+
+      item.addEventListener("click", () => {
+        this.currentTrack = trackNode;
+        this.currentTime = 0;
+        this.updateTrackInfo();
+        this.updatePlaylist();
+      });
+      this.playlist.appendChild(item);
+
+      currentNode = currentNode.next;
+      index++;
+    }
   }
 
   updateProgress() {
@@ -171,6 +225,4 @@ class MusicPlayer {
     }, 1000);
   }
 }
-
-// Initialize the music player
 new MusicPlayer();
