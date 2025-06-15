@@ -33,53 +33,11 @@ class MusicPlayer {
         duration: 299,
       },
       {
-        title: "A Calm Sunset",
-        artist: "Dee Yan-Key",
-        genre: "Jazz",
-        url: "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Dee_Yan-Key/slow_jazz_sunset/Dee_Yan-Key_-_01_-_a_calm_sunset.mp3",
-        duration: 214,
-      },
-      {
-        title: "On the Verge",
-        artist: "Ketsa",
-        genre: "Hip Hop / Chill",
-        url: "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Ketsa/Floating/On_The_Verge.mp3",
-        duration: 187,
-      },
-      {
-        title: "Sonata No. 1",
-        artist: "Kevin MacLeod",
-        genre: "Classical",
-        url: "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/curator/ccCommunity/Kevin_MacLeod/Classical_Sampler/Kevin_MacLeod_-_Sonata_No_1.mp3",
-        duration: 310,
-      },
-      {
         title: "Acoustic Breeze",
         artist: "Bensound",
         genre: "Acoustic",
         url: "https://www.bensound.com/bensound-music/bensound-acousticbreeze.mp3",
         duration: 223,
-      },
-      {
-        title: "A New Beginning",
-        artist: "Mixkit",
-        genre: "Cinematic",
-        url: "https://assets.mixkit.co/music/preview/mixkit-a-new-beginning-693.mp3",
-        duration: 147,
-      },
-      {
-        title: "Night Run",
-        artist: "Mixkit",
-        genre: "Electronic / Synth",
-        url: "https://assets.mixkit.co/music/preview/mixkit-night-run-666.mp3",
-        duration: 172,
-      },
-      {
-        title: "Dream Culture",
-        artist: "Kevin MacLeod",
-        genre: "Ambient",
-        url: "https://orangefreesounds.com/wp-content/uploads/2021/06/Dream-Culture.mp3",
-        duration: 158,
       },
       {
         title: "SoundHelix Song 3",
@@ -94,7 +52,8 @@ class MusicPlayer {
     this.initElements();
     this.bindEvents();
     this.updateTrackInfo();
-    this.startProgressSimulation();
+    // this.startProgressSimulation();
+    this.setupAudioListeners();
     this.updatePlaylist();
   }
 
@@ -169,7 +128,18 @@ class MusicPlayer {
 
     if (this.isPlaying) {
       this.player.classList.remove("paused");
-      this.audio.play();
+
+      if (this.audio.readyState < 4) {
+        this.audio.addEventListener(
+          "canplaythrough",
+          () => {
+            this.audio.play();
+          },
+          { once: true }
+        );
+      } else {
+        this.audio.play();
+      }
     } else {
       this.player.classList.add("paused");
       this.audio.pause();
@@ -189,16 +159,14 @@ class MusicPlayer {
   previousTrack() {
     if (this.currentTrack && this.currentTrack.prev)
       this.currentTrack = this.currentTrack.prev;
-
-    this.updateTrackInfo();
     this.updatePlaylist();
+    this.updateTrackInfo();
   }
   nextTrack() {
     if (this.currentTrack && this.currentTrack.next)
       this.currentTrack = this.currentTrack.next;
-
-    this.updateTrackInfo();
     this.updatePlaylist();
+    this.updateTrackInfo();
   }
 
   setProgress(e) {
@@ -224,9 +192,25 @@ class MusicPlayer {
   updateTrackInfo() {
     const track = this.currentTrack;
     this.audio.src = track.url;
+    // this.audio.play();
     this.trackTitle.textContent = track.title;
     this.trackArtist.textContent = track.artist;
+    this.currentTime = 0;
     this.totalTimeEl.textContent = this.formatTime(track.duration);
+
+    if (this.isPlaying) {
+        this.audio.pause();
+        this.audio.load();
+        this.audio.addEventListener(
+          "canplaythrough",
+          () => {
+            this.audio.play();
+          },
+          { once: true }
+        );
+      }
+    
+    
   }
 
   updatePlaylist() {
@@ -289,17 +273,33 @@ class MusicPlayer {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   }
 
-  startProgressSimulation() {
-    setInterval(() => {
-      if (this.isPlaying) {
-        this.currentTime += 1;
-        if (this.currentTime >= this.currentTrack.duration) {
-          this.nextTrack();
-          this.currentTime = 0;
-        }
-        this.updateProgress();
-      }
-    }, 1000);
+  setupAudioListeners() {
+    this.audio.addEventListener("timeupdate", () => {
+      this.currentTime = this.audio.currentTime;
+      this.updateProgress();
+    });
+
+    this.audio.addEventListener("ended", () => {
+      this.nextTrack();
+    });
+
+    this.audio.addEventListener("error", (e) => {
+      console.error("Audio error:", e);
+      // Show error to user
+    });
   }
+
+  //   startProgressSimulation() {
+  //     setInterval(() => {
+  //       if (this.isPlaying) {
+  //         this.currentTime += 1;
+  //         if (this.currentTime >= this.currentTrack.duration) {
+  //           this.nextTrack();
+  //           this.currentTime = 0;
+  //         }
+  //         this.updateProgress();
+  //       }
+  //     }, 1000);
+  //   }
 }
 new MusicPlayer();
