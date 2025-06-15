@@ -3,7 +3,7 @@ class SongNode {
     this.title = title;
     this.artist = artist;
     this.duration = duration;
-    this.url = url
+    this.url = url;
     this.next = null;
     this.prev = null;
   }
@@ -210,6 +210,7 @@ class MusicPlayer {
 
   setVolume(volume) {
     this.volume = volume;
+    this.audio.volume = volume / 100;
     const volumeIcon = document.querySelector(".volume-icon");
     if (volume == 0) {
       volumeIcon.textContent = "🔇";
