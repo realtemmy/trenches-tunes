@@ -1,8 +1,9 @@
 class SongNode {
-  constructor(title, artist, duration) {
+  constructor(title, artist, duration, url) {
     this.title = title;
     this.artist = artist;
     this.duration = duration;
+    this.url = url
     this.next = null;
     this.prev = null;
   }
@@ -17,10 +18,76 @@ class MusicPlayer {
     this.volume = 70;
 
     this.tracks = [
-      { title: "Ocean Breeze", artist: "Midnight Waves", duration: 225 },
-      { title: "Sunset Dreams", artist: "Aurora Sounds", duration: 252 },
-      { title: "City Lights", artist: "Urban Echo", duration: 208 },
-      { title: "Starlit Path", artist: "Cosmic Journey", duration: 303 },
+      {
+        title: "SoundHelix Song 1",
+        artist: "T. Schürger",
+        genre: "Instrumental",
+        url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+        duration: 351,
+      },
+      {
+        title: "SoundHelix Song 2",
+        artist: "T. Schürger",
+        genre: "Instrumental",
+        url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+        duration: 299,
+      },
+      {
+        title: "A Calm Sunset",
+        artist: "Dee Yan-Key",
+        genre: "Jazz",
+        url: "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Dee_Yan-Key/slow_jazz_sunset/Dee_Yan-Key_-_01_-_a_calm_sunset.mp3",
+        duration: 214,
+      },
+      {
+        title: "On the Verge",
+        artist: "Ketsa",
+        genre: "Hip Hop / Chill",
+        url: "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Ketsa/Floating/On_The_Verge.mp3",
+        duration: 187,
+      },
+      {
+        title: "Sonata No. 1",
+        artist: "Kevin MacLeod",
+        genre: "Classical",
+        url: "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/curator/ccCommunity/Kevin_MacLeod/Classical_Sampler/Kevin_MacLeod_-_Sonata_No_1.mp3",
+        duration: 310,
+      },
+      {
+        title: "Acoustic Breeze",
+        artist: "Bensound",
+        genre: "Acoustic",
+        url: "https://www.bensound.com/bensound-music/bensound-acousticbreeze.mp3",
+        duration: 223,
+      },
+      {
+        title: "A New Beginning",
+        artist: "Mixkit",
+        genre: "Cinematic",
+        url: "https://assets.mixkit.co/music/preview/mixkit-a-new-beginning-693.mp3",
+        duration: 147,
+      },
+      {
+        title: "Night Run",
+        artist: "Mixkit",
+        genre: "Electronic / Synth",
+        url: "https://assets.mixkit.co/music/preview/mixkit-night-run-666.mp3",
+        duration: 172,
+      },
+      {
+        title: "Dream Culture",
+        artist: "Kevin MacLeod",
+        genre: "Ambient",
+        url: "https://orangefreesounds.com/wp-content/uploads/2021/06/Dream-Culture.mp3",
+        duration: 158,
+      },
+      {
+        title: "SoundHelix Song 3",
+        artist: "T. Schürger",
+        genre: "Instrumental",
+        url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+        duration: 317,
+      },
     ];
 
     this.toNode();
@@ -32,7 +99,12 @@ class MusicPlayer {
   }
 
   addSong(track) {
-    const newSong = new SongNode(track.title, track.artist, track.duration);
+    const newSong = new SongNode(
+      track.title,
+      track.artist,
+      track.duration,
+      track.url
+    );
     if (!this.head) {
       this.head = newSong;
       this.currentTrack = this.head;
@@ -66,6 +138,7 @@ class MusicPlayer {
     this.equalizer = document.getElementById("equalizer");
     this.playlist = document.querySelector(".playlist");
     this.playlistItems = document.querySelectorAll(".playlist-item");
+    this.audio = document.getElementById("audioPlayer");
   }
 
   bindEvents() {
@@ -96,8 +169,10 @@ class MusicPlayer {
 
     if (this.isPlaying) {
       this.player.classList.remove("paused");
+      this.audio.play();
     } else {
       this.player.classList.add("paused");
+      this.audio.pause();
     }
   }
 
@@ -147,6 +222,7 @@ class MusicPlayer {
 
   updateTrackInfo() {
     const track = this.currentTrack;
+    this.audio.src = track.url;
     this.trackTitle.textContent = track.title;
     this.trackArtist.textContent = track.artist;
     this.totalTimeEl.textContent = this.formatTime(track.duration);
