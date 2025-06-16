@@ -100,7 +100,7 @@ class MusicPlayer {
     this.playlistItems = document.querySelectorAll(".playlist-item");
     this.audio = document.getElementById("audioPlayer");
     this.repeatBtn = document.getElementById("repeat");
-    this.shuffle = document.getElementById("shuffle");
+    this.shuffleBtn = document.getElementById("shuffle");
   }
 
   bindEvents() {
@@ -112,6 +112,7 @@ class MusicPlayer {
       this.setVolume(e.target.value)
     );
     this.repeatBtn.addEventListener("click", () => this.repeat());
+    this.shuffleBtn.addEventListener("click", () => this.shuffle());
   }
 
   togglePlay() {
@@ -167,7 +168,44 @@ class MusicPlayer {
     console.log(this.isRepeat);
   }
 
-  shuffle() {}
+  toArray() {
+    let currentNode = this.head;
+    const array = [];
+    while (currentNode) {
+      array.push(currentNode);
+      currentNode = currentNode.next;
+    }
+    return array;
+  }
+
+  shuffle() {
+    const array = this.toArray();
+    let currentIndex = array.length;
+    let randomIndex;
+
+    // Fisher Yates shuffling algorithm
+    while (currentIndex != 0) {
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+
+      // Swap
+      [array[currentIndex], array[randomIndex]] = [
+        array[randomIndex],
+        array[currentIndex],
+      ];
+    }
+
+    // Clear list before adding new ones
+    this.head = null;
+    this.currentTrack = null;
+
+    // Convert back to linked lists
+    for (let i = 0; i < array.length; i++) {
+      this.addSong(array[i]);
+    }
+    this.updateTrackInfo();
+    this.updatePlaylist();
+  }
 
   setProgress(e) {
     const rect = this.progressBar.getBoundingClientRect();
