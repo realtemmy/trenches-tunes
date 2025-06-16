@@ -163,7 +163,22 @@
             font-size: 18px;
         }
 
-        .control-btn:hover {
+        .control-btn-sm {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 18px;
+        }
+
+        .control-btn:hover, .control-btn-sm:hover {
             background: rgba(255, 255, 255, 0.3);
             transform: scale(1.05);
         }
@@ -330,10 +345,16 @@
         </div>
 
         <div class="controls">
+            <button class="control-btn-sm" id="shuffle">&#x1F500;</button>
             <button class="control-btn" id="prevBtn">⏮</button>
             <button class="control-btn play-pause" id="playPauseBtn">▶</button>
             <button class="control-btn" id="nextBtn">⏭</button>
+            <button class="control-btn-sm" id="repeat">🔁</button>
             <audio id="audioPlayer"></audio>
+        </div>
+        <div class="controls">
+
+
         </div>
 
         <div class="volume-container">

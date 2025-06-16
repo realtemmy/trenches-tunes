@@ -16,6 +16,7 @@ class MusicPlayer {
     this.isPlaying = false;
     this.currentTime = 0;
     this.volume = 70;
+    this.isRepeat = false;
 
     this.tracks = [
       {
@@ -98,6 +99,8 @@ class MusicPlayer {
     this.playlist = document.querySelector(".playlist");
     this.playlistItems = document.querySelectorAll(".playlist-item");
     this.audio = document.getElementById("audioPlayer");
+    this.repeatBtn = document.getElementById("repeat");
+    this.shuffle = document.getElementById("shuffle");
   }
 
   bindEvents() {
@@ -108,18 +111,7 @@ class MusicPlayer {
     this.volumeSlider.addEventListener("input", (e) =>
       this.setVolume(e.target.value)
     );
-
-    this.playlistItems.forEach((item) => {
-      item.addEventListener("click", () => {
-        this.currentTrack = parseInt(item.dataset.track);
-        this.updateTrackInfo();
-        this.updatePlaylist();
-        this.currentTime = 0;
-        if (this.isPlaying) {
-          this.updateProgress();
-        }
-      });
-    });
+    this.repeatBtn.addEventListener("click", () => this.repeat());
   }
 
   togglePlay() {
@@ -169,10 +161,21 @@ class MusicPlayer {
     this.updateTrackInfo();
   }
 
+  repeat() {
+    this.isRepeat = !this.isRepeat;
+    this.repeatBtn.classList.toggle("active", this.isRepeatPlaylist);
+    console.log(this.isRepeat);
+  }
+
+  shuffle() {}
+
   setProgress(e) {
     const rect = this.progressBar.getBoundingClientRect();
     const percent = (e.clientX - rect.left) / rect.width;
-    this.currentTime = percent * this.currentTrack.duration;
+    const seekTime = percent * this.audio.duration;
+
+    this.audio.currentTime = seekTime;
+    this.currentTime = seekTime;
     this.updateProgress();
   }
 
@@ -199,18 +202,16 @@ class MusicPlayer {
     this.totalTimeEl.textContent = this.formatTime(track.duration);
 
     if (this.isPlaying) {
-        this.audio.pause();
-        this.audio.load();
-        this.audio.addEventListener(
-          "canplaythrough",
-          () => {
-            this.audio.play();
-          },
-          { once: true }
-        );
-      }
-    
-    
+      this.audio.pause();
+      this.audio.load();
+      this.audio.addEventListener(
+        "canplaythrough",
+        () => {
+          this.audio.play();
+        },
+        { once: true }
+      );
+    }
   }
 
   updatePlaylist() {
@@ -280,7 +281,18 @@ class MusicPlayer {
     });
 
     this.audio.addEventListener("ended", () => {
-      this.nextTrack();
+      if (this.currentTrack.next) {
+        this.nextTrack();
+      } else if (this.isRepeat) {
+        this.currentTrack = this.head;
+        this.currentTime = 0;
+
+        this.updateTrackInfo();
+        this.updatePlaylist();
+      } else {
+        this.isPlaying = false;
+        this.playPauseBtn.textContent = "▶";
+      }
     });
 
     this.audio.addEventListener("error", (e) => {
@@ -288,18 +300,5 @@ class MusicPlayer {
       // Show error to user
     });
   }
-
-  //   startProgressSimulation() {
-  //     setInterval(() => {
-  //       if (this.isPlaying) {
-  //         this.currentTime += 1;
-  //         if (this.currentTime >= this.currentTrack.duration) {
-  //           this.nextTrack();
-  //           this.currentTime = 0;
-  //         }
-  //         this.updateProgress();
-  //       }
-  //     }, 1000);
-  //   }
 }
 new MusicPlayer();
